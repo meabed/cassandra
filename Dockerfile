@@ -3,7 +3,9 @@
 # Debian:wheezy
 # docker build -t meabed/cassandra:latest .
 #
-
+# sudo sysctl -w vm.max_map_count=2621444
+# sudo su
+# echo "vm.max_map_count=262144" >> /etc/sysctl.conf
 
 # you might need to run this commands in DOCKER HOST
 # ulimit -l unlimited
@@ -46,7 +48,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-$JDK_VERSION-openjdk-amd64
 ENV PATH $PATH:$JAVA_HOME/bin
 
 # Install cassandra
-RUN apt-get install -y dsc20
+RUN apt-get install -y dsc21
 RUN apt-get install -y opscenter
 
 # Comment the ulimit setters by cassandra deamon
@@ -60,13 +62,19 @@ RUN sed -ri 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 RUN sed -ri 's/#UsePAM no/UsePAM no/g' /etc/ssh/sshd_config
 
+RUN sed -i "/^cluster_name:/ s|.*|cluster_name: 'iData Cluster'\n|" /etc/cassandra/cassandra.yaml
 RUN sed -i "/^rpc_address:/ s|.*|rpc_address: 0.0.0.0\n|" /etc/cassandra/cassandra.yaml
+
+VOLUME ["/data"]
+RUN ln -svf /data/cassandra /var/lib/cassandra
 
 RUN service ssh start && service opscenterd start && service cassandra start
 
 ADD bootstrap.sh /etc/bootstrap.sh
 RUN chown root:root /etc/bootstrap.sh
 RUN chmod 700 /etc/bootstrap.sh
+
+VOLUME ["/data"]
 
 CMD ["/etc/bootstrap.sh", "-d"]
 
