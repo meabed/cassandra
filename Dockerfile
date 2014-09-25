@@ -40,8 +40,11 @@ RUN sed -ri 's/#PermitRootLogin yes/PermitRootLogin yes/g' /etc/ssh/sshd_config
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 RUN sed -ri 's/#UsePAM no/UsePAM no/g' /etc/ssh/sshd_config
 
+
 RUN sed -i "/^cluster_name:/ s|.*|cluster_name: 'iData Cluster'\n|" /etc/cassandra/cassandra.yaml
 RUN sed -i "/^rpc_address:/ s|.*|rpc_address: 0.0.0.0\n|" /etc/cassandra/cassandra.yaml
+
+RUN sed -ri 's/\/var\/lib\/cassandra\/data/\/var\/lib\/cassandra\/shared\/data/g' /etc/cassandra/cassandra.yaml
 
 # Run Cassandra as Root
 RUN sed -ri 's/-c cassandra/-c root/g' /etc/init.d/cassandra
@@ -50,8 +53,10 @@ RUN echo "broadcast_rpc_address: localhost" >>  /etc/cassandra/cassandra.yaml
 
 VOLUME ["/data"]
 
-RUN rm -rf /var/lib/cassandra
-RUN ln -svf /data/cassandra /var/lib/
+
+#RUN rm -rf /var/lib/cassandra
+RUN mkdir -p /var/lib/cassandra/shared/data
+RUN ln -svf /data/cassandra /var/lib/cassandra/shared/data
 
 RUN service ssh start && service opscenterd start && service cassandra start
 
