@@ -49,7 +49,7 @@ RUN sed -ri 's/\/var\/lib\/cassandra\/data/\/var\/lib\/cassandra\/shared\/data\/
 # Run Cassandra as Root
 RUN sed -ri 's/-c cassandra/-c root/g' /etc/init.d/cassandra
 
-RUN echo "broadcast_rpc_address: localhost" >>  /etc/cassandra/cassandra.yaml
+#RUN echo "broadcast_rpc_address: localhost" >>  /etc/cassandra/cassandra.yaml
 
 VOLUME ["/data"]
 
