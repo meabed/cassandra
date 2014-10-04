@@ -13,6 +13,8 @@ container_ip=$(hostname -I | cut -d' ' -f1)
 #echo "rpc_address: "$container_ip >>  /etc/cassandra/cassandra.yaml
 echo "broadcast_rpc_address: "$container_ip >>  /etc/cassandra/cassandra.yaml
 
+echo "export PATH=$PATH" >> /etc/env_profile
+
 if [[ $1 == "-d" ]]; then
     while true; do
         sleep 1000;
